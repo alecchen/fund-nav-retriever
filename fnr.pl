@@ -200,7 +200,6 @@ sub retrieve_nav {
 		foreach my $fund_link (@fund_links) {
 			my $fund_name = $fund_link->text;
 			my $log_fund_name = decode('big5', $fund_name);
-			Wx::LogMessage($log_fund_name);
 			my $fund_url  = $fund_link->url_abs;
 			$mech->get($fund_url);
 			my $content = $mech->content;
@@ -216,6 +215,13 @@ sub retrieve_nav {
 				$values[1], 
 				$values[2];
 			"$result\n" >> io($output);
+
+			my $log_result = sprintf "%-50s %-15s %-10s %-10s", 
+				$log_fund_name, 
+				$values[0], 
+				$values[1], 
+				$values[2];
+			Wx::LogMessage($log_result);
 		}
 	}
 
