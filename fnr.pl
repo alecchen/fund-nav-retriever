@@ -18,7 +18,7 @@ use Data::TreeDumper;
 use Smart::Comments;
 use List::MoreUtils qw(any);
 
-use version; our $VERSION = qv('0.0.2');
+use version; our $VERSION = qv('0.0.3');
 
 our %text;
 my $os = $ENV{OS};
@@ -261,6 +261,7 @@ sub retrieve_nav {
 				$values[2];
 			Wx::LogMessage($log_result);
 		}
+		"\n" >> io($output);
 	}
 
     Wx::LogMessage($text{output});
