@@ -16,15 +16,16 @@ use WWW::Mechanize;
 use HTML::TableExtract;
 use Data::TreeDumper;
 use Smart::Comments;
+use List::MoreUtils qw(any);
 
-use version; our $VERSION = qv('0.0.1');
+use version; our $VERSION = qv('0.0.2');
 
 our %text;
 my $os = $ENV{OS};
 $os eq 'Windows_NT' ? require 'lang/cht_big5.pm' : require 'lang/cht_utf8.pm';
 my $encoding = $text{encoding};
 
-has 'input'   => ( is => 'rw', isa => 'Str' );
+has 'input'   => ( is => 'rw', isa => 'ArrayRef' );
 has 'output'  => ( is => 'rw', isa => 'Str' );
 has 'config'  => ( is => 'rw', isa => 'Str' );
 has 'previous_file'      => ( is => 'rw', isa => 'Str' );
@@ -52,6 +53,7 @@ sub new {
 	my $wxID_SETUP_INPUT  = 100;
 	my $wxID_SETUP_OUTPUT = 101;
     my $setup = Wx::Menu->new;
+    $setup->Append( $wxID_SETUP_INPUT,  "$text{input}(&I)" );
     $setup->Append( $wxID_SETUP_OUTPUT, "$text{output}(&O)" );
 
     my $help = Wx::Menu->new;
@@ -64,6 +66,7 @@ sub new {
     $self->SetMenuBar( $menubar );
 
     EVT_MENU( $self, wxID_ABOUT, \&on_about );
+    EVT_MENU( $self, $wxID_SETUP_INPUT,  \&on_setup_input  );
     EVT_MENU( $self, $wxID_SETUP_OUTPUT, \&on_setup_output );
     EVT_MENU( $self, wxID_EXIT, sub { $self->Close } );
 
@@ -101,12 +104,14 @@ sub new {
 
 	if (! -e $self->config) {
 		q{} > io($self->config); # create a empty file
+		$self->on_setup_input;
 		$self->on_setup_output;
 	}
 	else {
 		# read config
 		my $config = Config::General->new($self->config);
 		my %config = $config->getall;
+		$self->input(ref $config{input} ? $config{input} : [$config{input}]);
 		$self->output($config{output});
 	}
 
@@ -116,6 +121,35 @@ sub new {
 #---------------------------------------------------------------------------
 #  setup
 #---------------------------------------------------------------------------
+
+sub on_setup_input {
+	my $self = shift;
+
+	my $url = 'http://www.funddj.com/y/yb/YP303000.djhtm';
+	#my $url = 'http://www.funddj.com/y/yb/YP303001.djhtm';
+
+	my $mech = WWW::Mechanize->new;
+	$mech->get($url);
+	my @company_links = grep { $_->url_abs =~ /yp020000/ } $mech->links;
+	my @company_names = map { decode('big5', $_->text) } @company_links;
+
+	my $dialog = Wx::MultiChoiceDialog->new( $self, "Make a choice", "Choose", [@company_names] );
+
+	if( $dialog->ShowModal == wxID_CANCEL ) {
+		Wx::LogMessage( "User cancelled the dialog" );
+	} else {
+		my @selections = $dialog->GetSelections;
+		Wx::LogMessage( "The choices are: %s", join ", ", @selections );
+		$self->input(\@selections);
+
+		my $config = Config::General->new($self->config);
+		my %config = $config->getall;
+		$config{input} = $self->input;
+		$config->save_file($self->config, \%config);
+	}
+
+	$dialog->Destroy;
+}
 
 sub on_setup_output {
 	my $self = shift;
@@ -190,7 +224,11 @@ sub retrieve_nav {
 	$mech->get($url);
 	my @company_links = grep { $_->url_abs =~ /yp020000/ } $mech->links;
 
+	my $index = -1;
+	my @company_selections = @{$self->input};
 	foreach my $company_link (@company_links) {
+		$index++;
+		next unless any { $_ == $index } @company_selections;
 		my $company_name = $company_link->text;
 		my $company_url  = $company_link->url_abs;
 		$mech->get($company_url);
