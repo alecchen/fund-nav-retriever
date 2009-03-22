@@ -18,7 +18,7 @@ use Data::TreeDumper;
 use Smart::Comments;
 use List::MoreUtils qw(any);
 
-use version; our $VERSION = qv('0.0.3');
+use version; our $VERSION = qv('0.0.4');
 
 our %text;
 my $os = $ENV{OS};
@@ -134,6 +134,12 @@ sub on_setup_input {
 	my @company_names = map { decode('big5', $_->text) } @company_links;
 
 	my $dialog = Wx::MultiChoiceDialog->new( $self, "Make a choice", "Choose", [@company_names] );
+	my @selected = @{ $self->input };
+
+	if (@selected) {
+		$dialog->SetSelections(@selected);
+		Wx::LogMessage( "The choices are: %s", join ", ", @selected );
+	}
 
 	if( $dialog->ShowModal == wxID_CANCEL ) {
 		Wx::LogMessage( "User cancelled the dialog" );
