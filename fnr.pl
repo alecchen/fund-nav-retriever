@@ -18,7 +18,7 @@ use Data::TreeDumper;
 use Smart::Comments;
 use List::MoreUtils qw(any);
 
-use version; our $VERSION = qv('0.0.4');
+use version; our $VERSION = qv('0.0.5');
 
 our %text;
 my $os = $ENV{OS};
@@ -88,7 +88,7 @@ sub new {
     my $panel = Wx::Panel->new($split, -1);
 
     # buttons
-    my $run_btn  = Wx::Button->new( $panel, -1, $text{exec}, [500,5] );
+    my $run_btn  = Wx::Button->new( $panel, -1, $text{exec}, [490,5] );
     my $exit_btn = Wx::Button->new( $panel, -1, $text{exit}, [590,5] );
 
     EVT_BUTTON( $self, $run_btn,  \&on_run);
@@ -133,19 +133,21 @@ sub on_setup_input {
 	my @company_links = grep { $_->url_abs =~ /yp020000/ } $mech->links;
 	my @company_names = map { decode('big5', $_->text) } @company_links;
 
-	my $dialog = Wx::MultiChoiceDialog->new( $self, "Make a choice", "Choose", [@company_names] );
+	my $dialog = Wx::MultiChoiceDialog->new( $self, "$text{fund}$text{company}$text{select}", "$text{select}$text{company}", [@company_names] );
 	my @selected = @{ $self->input };
 
 	if (@selected) {
 		$dialog->SetSelections(@selected);
-		Wx::LogMessage( "The choices are: %s", join ", ", @selected );
+		Wx::LogMessage( "$text{previous}$text{select}: " );
+		Wx::LogMessage( join ", ", (map { $company_names[$_] } @selected) );
 	}
 
 	if( $dialog->ShowModal == wxID_CANCEL ) {
-		Wx::LogMessage( "User cancelled the dialog" );
+		Wx::LogMessage( "$text{user}$text{cancel}$text{select}" );
 	} else {
 		my @selections = $dialog->GetSelections;
-		Wx::LogMessage( "The choices are: %s", join ", ", @selections );
+		Wx::LogMessage( "$text{user}$text{select}: " );
+		Wx::LogMessage( join ", ", (map { $company_names[$_] } @selections) );
 		$self->input(\@selections);
 
 		my $config = Config::General->new($self->config);

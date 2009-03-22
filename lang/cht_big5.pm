@@ -19,4 +19,10 @@
     label    => '基金名稱 日期 基金淨值 漲跌幅',
     user     => '使用者',
     cancel   => '取消',
+    fund     => '基金',
+    select   => '選擇',
+    company  => '公司',
+    cancel   => '取消',
+    is       => '是',
+    previous => '上次',
 );

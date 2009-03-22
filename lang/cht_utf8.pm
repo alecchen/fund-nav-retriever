@@ -1,5 +1,5 @@
 ﻿%text = (
-    encoding => 'big5',
+    encoding => 'utf8',
     name     => '基金淨值擷取程式',
     desc     => '擷取FundDJ所提供基金淨值資料供個人投資參考',
     greeting => '歡迎使用',
@@ -19,4 +19,10 @@
     label    => '基金名稱 日期 基金淨值 漲跌幅',
     user     => '使用者',
     cancel   => '取消',
+    fund     => '基金',
+    select   => '選擇',
+    company  => '公司',
+    cancel   => '取消',
+    is       => '是',
+    previous => '上次',
 );
