@@ -134,7 +134,7 @@ sub on_setup_input {
 	my @company_names = map { decode('big5', $_->text) } @company_links;
 
 	my $dialog = Wx::MultiChoiceDialog->new( $self, "$text{fund}$text{company}$text{select}", "$text{select}$text{company}", [@company_names] );
-	my @selected = @{ $self->input };
+	my @selected = $self->input ? @{ $self->input } : ();
 
 	if (@selected) {
 		$dialog->SetSelections(@selected);
