@@ -18,7 +18,7 @@ use Data::TreeDumper;
 use Smart::Comments;
 use List::MoreUtils qw(any);
 
-use version; our $VERSION = qv('0.0.5');
+use version; our $VERSION = qv('0.0.6');
 
 our %text;
 my $os = $ENV{OS};
