@@ -126,7 +126,7 @@ sub new {
     foreach my $url (@url) {
 	$mech->get($url);
 	my %data = map { $_->url_abs => $_ } $mech->links;
-	my @keys = uniq grep { /yp02000[0-1]/ } map { $_->url_abs } $mech->links;
+	my @keys = uniq grep { /yp02000[0-1]/ } sort map { $_->url_abs } $mech->links;
 	push @company_links, @data{@keys};
     }
 
