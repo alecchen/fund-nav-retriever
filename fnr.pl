@@ -260,9 +260,11 @@ sub retrieve_nav {
 
             my $te = HTML::TableExtract->new;
             $te->parse($content);
+
             my @tables = $te->tables;
-            my $table= $fund_url =~ /yp020000/ ? $tables[2] : $tables[1];
+            my $table= $fund_url =~ /yp010000/ ? $tables[1] : $tables[0];
             my @values = @{ $table->rows->[1] }[0..2];
+
             my $result = sprintf "%-50s %-15s %-10s %-10s", 
                 $fund_name, 
                 $values[0], 
